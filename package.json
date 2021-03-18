@@ -5,7 +5,8 @@
   "main": "serverless.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "node ./devops/deployKaleido && sls deploy --stage dev && node ./devops/buildFrontend.js && node ./devops/uploadFrontend.js"
+    "postinstall": "cd frontend && npm install",
+    "deploy": "node ./devops/deployKaleido && sls deploy --stage dev && node ./devops/addBooks.js && node ./devops/buildFrontend.js && node ./devops/deployFrontend.js"
   },
   "engines": {
     "node": ">=14.15.0"
@@ -26,9 +27,6 @@
     "json-schema-to-ts": "^1.5.0",
     "querystring": "^0.2.1",
     "serverless": "^2.23.0",
-    "serverless-hooks": "^1.0.0",
-    "serverless-offline": "^6.8.0",
-    "serverless-scriptable-plugin": "^1.1.0",
     "serverless-stack-output": "^0.2.3",
     "serverless-webpack": "^5.3.5",
     "ts-loader": "^8.0.15",

@@ -4,17 +4,13 @@ import Button from "@material-ui/core/Button";
 import AccountCircleIcon from "@material-ui/icons/AccountCircle";
 import IconButton from "@material-ui/core/IconButton";
 import BookIcon from "@material-ui/icons/Book";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
+
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import Link from "@material-ui/core/Link";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -31,6 +27,11 @@ import FormLabel from "@material-ui/core/FormLabel";
 import InputLabel from "@material-ui/core/InputLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import { Book } from "./types";
+import BookCard from "./BookCard";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import BookPage from "./BookPage";
+import { inherits } from "node:util";
 
 const theme = createMuiTheme({
   palette: {
@@ -53,23 +54,11 @@ const theme = createMuiTheme({
   },
 });
 
-interface Book {
-  bookId: string;
-  title: string;
-  author: string;
-  coverUrl: string;
-  year: string;
-  isbn: string;
-  borrower: string;
-}
-
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary">
       {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Bookchain, Inc.
-      </Link>{" "}
+      Bookchain, Inc.
       {new Date().getFullYear()}
       {"."}
     </Typography>
@@ -124,33 +113,27 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     minWidth: 120,
   },
+  subtleLink: {
+    color: "inherit",
+    textDecoration: "none",
+  },
 }));
+
+export const UserContext = React.createContext("");
 
 const Books: React.FC = () => {
   const classes = useStyles();
 
   const [books, setBooks] = useState<Book[]>([]);
-  const [myAddress, setMyAddress] = useState<String>("");
+  const [myAddress, setMyAddress] = useState("");
   const [borrowDialogOpen, setBorrowDialogOpen] = React.useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = React.useState(false);
   const [loginDialogOpen, setLoginDialogOpen] = React.useState(false);
   const [sortBy, setSortBy] = React.useState("bookId");
-
-  const handleBorrowDialogClickOpen = () => {
-    setBorrowDialogOpen(true);
-  };
-
-  const handleBorrowDialogClickClose = () => {
-    setBorrowDialogOpen(false);
-  };
-
-  const handleReturnDialogClickOpen = () => {
-    setReturnDialogOpen(true);
-  };
-
-  const handleReturnDialogClickClose = () => {
-    setReturnDialogOpen(false);
-  };
+  const [selectedBook, setSelectedBook] = React.useState<Book | undefined>(
+    undefined
+  );
+  const [bookDialogOpen, setBookDialogOpen] = React.useState(false);
 
   const handleLoginDialogClickOpen = () => {
     setLoginDialogOpen(true);
@@ -172,221 +155,147 @@ const Books: React.FC = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (selectedBook) {
+      setBookDialogOpen(true);
+    }
+  }, [selectedBook]);
+
   return (
-    <React.Fragment>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <AppBar position="sticky">
-          <Toolbar>
-            <BookIcon className={classes.icon} />
-            <Typography
-              variant="h6"
-              color="inherit"
-              noWrap
-              className={classes.title}
-            >
-              BOOKCHAIN
-            </Typography>
-            <IconButton
-              onClick={handleLoginDialogClickOpen}
-              aria-label="login"
-              className={classes.loginIcon}
-            >
-              <AccountCircleIcon />
-            </IconButton>
-            <Dialog
-              open={loginDialogOpen}
-              onClose={handleLoginDialogClickClose}
-              aria-labelledby="form-dialog-title"
-            >
-              <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
-              <DialogContent>
-                <DialogContentText>
-                  To subscribe to this website, please enter your email address
-                  here. We will send updates occasionally.
-                </DialogContentText>
-                <TextField
-                  autoFocus
-                  margin="dense"
-                  id="myAddress"
-                  label="Wallet address"
-                  fullWidth
-                  value={myAddress}
-                  onChange={(event) => {
-                    setMyAddress(event.target.value);
-                  }}
-                />
-              </DialogContent>
-              <DialogActions>
-                <Button onClick={handleLoginDialogClickClose} color="primary">
-                  Login
-                </Button>
-              </DialogActions>
-            </Dialog>
-          </Toolbar>
-        </AppBar>
-        <main>
-          <Container className={classes.cardGrid} maxWidth="lg">
-            <Grid container spacing={4}>
-              <Grid container className={classes.libraryHeader}>
-                <Typography variant="h6" className={classes.libraryTitle}>
-                  Library
+    <Router>
+      <React.Fragment>
+        <UserContext.Provider value={myAddress}>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <AppBar position="sticky">
+              <Toolbar>
+                <BookIcon className={classes.icon} />
+                <Typography
+                  variant="h6"
+                  color="inherit"
+                  noWrap
+                  className={classes.title}
+                >
+                  <Link to="/" className={classes.subtleLink}>
+                    BOOKCHAIN
+                  </Link>
                 </Typography>
-                <FormGroup row>
-                  <FormControlLabel
-                    control={<Checkbox name="checkedC" />}
-                    label="Show only borrowed by me"
-                  />
-                  <FormControl
-                    variant="outlined"
-                    className={classes.formControl}
-                  >
-                    <InputLabel htmlFor="outlined-age-native-simple">
-                      Sort by
-                    </InputLabel>
-                    <Select
-                      native
-                      label="Sort by"
-                      inputProps={{
-                        name: "age",
-                        id: "outlined-age-native-simple",
+                <IconButton
+                  onClick={handleLoginDialogClickOpen}
+                  aria-label="login"
+                  className={classes.loginIcon}
+                >
+                  <AccountCircleIcon />
+                </IconButton>
+                <Dialog
+                  open={loginDialogOpen}
+                  onClose={handleLoginDialogClickClose}
+                  aria-labelledby="form-dialog-title"
+                >
+                  <DialogTitle id="form-dialog-title">Subscribe</DialogTitle>
+                  <DialogContent>
+                    <DialogContentText>
+                      To subscribe to this website, please enter your email
+                      address here. We will send updates occasionally.
+                    </DialogContentText>
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="myAddress"
+                      label="Wallet address"
+                      fullWidth
+                      value={myAddress}
+                      onChange={(event) => {
+                        setMyAddress(event.target.value);
                       }}
-                      value={"bookId"}
-                    >
-                      <option value={"bookId"}>Book ID</option>
-                      <option value={"title"}>Title</option>
-                      <option value={"author"}>Author</option>
-                      <option value={"availability"}>Availability</option>
-                    </Select>
-                  </FormControl>
-                </FormGroup>
-              </Grid>
-              {books.map((book) => (
-                <Grid item key={book.bookId} xs={4} sm={3} md={3} lg={3}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image={book.coverUrl}
-                      title="Cover art"
                     />
-                    <CardContent className={classes.cardContent}>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {book.title}
-                      </Typography>
-                      <Typography>{book.author}</Typography>
-                    </CardContent>
-                    {myAddress !== "" ? (
-                      <CardActions>
-                        {book.borrower == "" ? (
-                          <Button
-                            size="small"
-                            color="primary"
-                            onClick={handleBorrowDialogClickOpen}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      onClick={handleLoginDialogClickClose}
+                      color="primary"
+                    >
+                      Login
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+              </Toolbar>
+            </AppBar>
+            <Switch>
+              <Route
+                path="/books/:bookId"
+                render={(props) => {
+                  return <BookPage {...props}></BookPage>;
+                }}
+              />
+              <Route path="/">
+                <main>
+                  <Container className={classes.cardGrid} maxWidth="lg">
+                    <Grid container spacing={4}>
+                      <Grid container className={classes.libraryHeader}>
+                        <Typography
+                          variant="h6"
+                          className={classes.libraryTitle}
+                        >
+                          Library
+                        </Typography>
+                        <FormGroup row>
+                          <FormControlLabel
+                            control={<Checkbox name="checkedC" />}
+                            label="Show only borrowed by me"
+                          />
+                          <FormControl
+                            variant="outlined"
+                            className={classes.formControl}
                           >
-                            Borrow
-                          </Button>
-                        ) : book.borrower == myAddress ? (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="secondary"
-                            onClick={handleReturnDialogClickOpen}
+                            <InputLabel htmlFor="outlined-age-native-simple">
+                              Sort by
+                            </InputLabel>
+                            <Select
+                              native
+                              label="Sort by"
+                              inputProps={{
+                                name: "age",
+                                id: "outlined-age-native-simple",
+                              }}
+                              value={"bookId"}
+                            >
+                              <option value={"bookId"}>Book ID</option>
+                              <option value={"title"}>Title</option>
+                              <option value={"author"}>Author</option>
+                              <option value={"availability"}>
+                                Availability
+                              </option>
+                            </Select>
+                          </FormControl>
+                        </FormGroup>
+                      </Grid>
+                      {books.map((book) => (
+                        <Grid
+                          item
+                          key={book.bookId}
+                          xs={4}
+                          sm={3}
+                          md={3}
+                          lg={3}
+                        >
+                          <Link
+                            to={`/books/${book.bookId}`}
+                            className={classes.subtleLink}
                           >
-                            Return
-                          </Button>
-                        ) : (
-                          <Button size="small" variant="contained" disabled>
-                            Unavailable
-                          </Button>
-                        )}
-
-                        {/* <Button size="small" color="primary">
-                        View
-                      </Button>
-                      <Button size="small" color="primary">
-                        Edit
-                      </Button> */}
-                      </CardActions>
-                    ) : undefined}
-                  </Card>
-                  <Dialog
-                    open={returnDialogOpen}
-                    onClose={handleReturnDialogClickClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                  >
-                    <DialogTitle id="alert-dialog-title">
-                      Return {book.title}?
-                    </DialogTitle>
-                    <DialogContent>
-                      <DialogContentText id="alert-dialog-description">
-                        This means you actually need to give the book back to
-                        its rightful owner. Are you ready to do that?
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleReturnDialogClickClose}>
-                        Not yet
-                      </Button>
-                      <Button
-                        // TODO: change this to actually return the book
-                        onClick={handleReturnDialogClickClose}
-                        color="secondary"
-                        autoFocus
-                      >
-                        Return Book
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-
-                  <Dialog
-                    open={borrowDialogOpen}
-                    onClose={handleBorrowDialogClickClose}
-                    aria-labelledby="alert-dialog-title"
-                    aria-describedby="alert-dialog-description"
-                  >
-                    <DialogTitle id="alert-dialog-title">
-                      Borrow {book.title}?
-                    </DialogTitle>
-                    <DialogContent>
-                      <DialogContentText id="alert-dialog-description">
-                        Great choice! Just to let you know, you will need to
-                        give this book back at some point. Are you okay with
-                        that?
-                      </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleBorrowDialogClickClose}>
-                        No thanks
-                      </Button>
-                      <Button
-                        // TODO: change this to actually return the book
-                        onClick={handleBorrowDialogClickClose}
-                        color="primary"
-                        autoFocus
-                      >
-                        Borrow Book
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
-        </main>
-        {/* Footer */}
-        <footer className={classes.footer}>
-          {/* <Typography variant="h6" gutterBottom>
-            Footer
-          </Typography>
-          <Typography variant="subtitle1" color="textSecondary" component="p">
-            Something here to give the footer a purpose!
-          </Typography> */}
-          <Copyright />
-        </footer>
-        {/* End footer */}
-      </ThemeProvider>
-    </React.Fragment>
+                            <BookCard book={book}></BookCard>
+                          </Link>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Container>
+                </main>
+              </Route>
+            </Switch>
+          </ThemeProvider>
+        </UserContext.Provider>
+      </React.Fragment>
+    </Router>
   );
 };
 

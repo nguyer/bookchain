@@ -54,6 +54,9 @@ const init = async () => {
     .href;
   console.log(`\nYour Kaleido generated API path is:\n${generatedApiUrl}\n`);
   const constructorResponse = await callConstructor(generatedApiUrl);
+  console.log(
+    `Contract initialized at address: ${constructorResponse.data.contractAddress}`
+  );
   const outputs = {
     generatedApiUrl: generatedApiUrl,
     contractAddress: constructorResponse.data.contractAddress,
@@ -64,13 +67,15 @@ const init = async () => {
   );
 };
 
-const callConstructor = async (url) => {
-  return await axios.post(
+const callConstructor = (url) => {
+  console.log("Calling smart contract constructor...");
+  return axios.post(
     url,
     {},
     {
       headers: {
         "x-kaleido-from": kaleidoConfig.fromAddress,
+        "x-kaleido-sync": true,
       },
       auth: {
         username: kaleidoConfig.userId,

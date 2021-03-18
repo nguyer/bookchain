@@ -5,6 +5,7 @@ export const handler = async (
   event: APIGatewayEvent
 ): Promise<APIGatewayProxyResult> => {
   const requestBody = JSON.parse(event.body);
+  console.log(requestBody);
   const bookId = event.pathParameters.bookId;
   const fromAddress = requestBody.fromAddress;
   const bookStatus = requestBody.status;

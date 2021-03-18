@@ -1,0 +1,93 @@
+[
+  {
+    "title": "The Fellowship of the Ring",
+    "author": "J.R.R. Tolkien",
+    "year": "1988",
+    "isbn": "0395489318",
+    "coverUrl": "https://m.media-amazon.com/images/I/41kUPvqlguL._SY346_.jpg"
+  },
+  {
+    "title": "The Two Towers",
+    "author": "J.R.R. Tolkien",
+    "year": "1988",
+    "isbn": "0395489334",
+    "coverUrl": "https://m.media-amazon.com/images/I/4123zOAwAgL.jpg"
+  },
+  {
+    "title": "The Return of the King",
+    "author": "J.R.R. Tolkien",
+    "year": "1988",
+    "isbn": "039548930X",
+    "coverUrl": "https://m.media-amazon.com/images/I/41KGl2FqeAL.jpg"
+  },
+  {
+    "title": "Out of the Silent Planet",
+    "author": "C.S. Lewis",
+    "year": "1996",
+    "isbn": "0684833646",
+    "coverUrl": "https://images-na.ssl-images-amazon.com/images/I/51bWklIGxjL._SX328_BO1,204,203,200_.jpg"
+  },
+  {
+    "title": "Perelandra",
+    "author": "C.S. Lewis",
+    "year": "1996",
+    "isbn": "0684833654",
+    "coverUrl": "https://m.media-amazon.com/images/I/512iNiDzlQL.jpg"
+  },
+  {
+    "title": "That Hideous Strength",
+    "author": "C.S. Lewis",
+    "year": "2014",
+    "isbn": "0007588518",
+    "coverUrl": "https://m.media-amazon.com/images/I/51GfSUf61vL._SY346_.jpg"
+  },
+  {
+    "title": "The Magician's Nephew",
+    "author": "C.S. Lewis",
+    "year": "1996",
+    "isbn": "0684833654",
+    "coverUrl": "https://m.media-amazon.com/images/I/51KCv9XrR2L.jpg"
+  },
+  {
+    "title": "The Lion, the Witch and the Wardrobe",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "0003300099",
+    "coverUrl": "https://m.media-amazon.com/images/I/51hQ4EstmyL.jpg"
+  },
+  {
+    "title": "The Horse and His Boy",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "0060234881",
+    "coverUrl": "https://m.media-amazon.com/images/I/51n5gxq96rL.jpg"
+  },
+  {
+    "title": "Prince Caspian",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "9780060234836",
+    "coverUrl": "https://m.media-amazon.com/images/I/41ULHT5a6ZL.jpg"
+  },
+  {
+    "title": "The Voyage of the Dawn Treader",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "9780060234867",
+    "coverUrl": "https://m.media-amazon.com/images/I/51-tMl-7MgL.jpg"
+  },
+  {
+    "title": "The Silver Chair",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "9780060234867",
+    "coverUrl": "https://m.media-amazon.com/images/I/41dlZHMLOfL.jpg"
+  },
+  {
+    "title": "The Last Battle",
+    "author": "C.S. Lewis",
+    "year": "1983",
+    "isbn": "9780060234867",
+    "coverUrl": "https://m.media-amazon.com/images/I/41G3q+SH-BL.jpg"
+  }
+]

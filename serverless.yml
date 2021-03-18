@@ -39,19 +39,16 @@ provider:
           - dynamodb:Scan
         Resource:
           "*" # TODO: Restrict this
+  httpApi:
+    cors: true
 
 plugins:
-  - serverless-scriptable-plugin
   - serverless-stack-output
   - serverless-webpack
 
 custom:
   output:
    file: devops/outputs/serverlessOutputs.json # toml, yaml, yml, and json format is available
-  scriptHooks:
-    # before:package:initialize: node devops/deployKaleido.js
-    # before:deploy:deploy: echo 'do other pre-deploy stuff here'
-    # after:deploy:finalize: node devops/createKaleidoEvents.js && node devops/buildFrontend.js && node devops/deployFrontend.js
   webpack:
     webpackConfig: './webpack.config.js'
     includeModules: true
