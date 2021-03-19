@@ -47,6 +47,7 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
   const [waitDialogOpen, setWaitDialogOpen] = useState(false);
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
+  const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false);
   const [records, setRecords] = useState<Record[]>([]);
   const reloadDelay = 1000; // ms
 
@@ -69,23 +70,33 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
   const borrowBook = async () => {
     setBorrowDialogOpen(false);
     setWaitDialogOpen(true);
-    await sendRecordRequest("borrowed");
-    setTimeout(() => {
+    const res = await sendRecordRequest("borrowed");
+    if (res.status === 200) {
+      setTimeout(() => {
+        setWaitDialogOpen(false);
+        setSuccessSnackbarOpen(true);
+        fetchBook();
+      }, reloadDelay);
+    } else {
       setWaitDialogOpen(false);
-      setSuccessSnackbarOpen(true);
-      fetchBook();
-    }, reloadDelay);
+      setErrorSnackbarOpen(true);
+    }
   };
 
   const returnBook = async () => {
     setReturnDialogOpen(false);
     setWaitDialogOpen(true);
-    await sendRecordRequest("returned");
-    setTimeout(() => {
+    const res = await sendRecordRequest("returned");
+    if (res.status === 200) {
+      setTimeout(() => {
+        setWaitDialogOpen(false);
+        setSuccessSnackbarOpen(true);
+        fetchBook();
+      }, reloadDelay);
+    } else {
       setWaitDialogOpen(false);
-      setSuccessSnackbarOpen(true);
-      fetchBook();
-    }, reloadDelay);
+      setErrorSnackbarOpen(true);
+    }
   };
 
   const fetchBook = useCallback(() => {
@@ -191,6 +202,18 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
         >
           <Alert severity="success">
             Your request was successfully written to the blockchain!
+          </Alert>
+        </Snackbar>
+        <Snackbar
+          open={errorSnackbarOpen}
+          autoHideDuration={6000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          onClose={() => {
+            setErrorSnackbarOpen(false);
+          }}
+        >
+          <Alert severity="error">
+            An error occurred writing your request to the blockchain
           </Alert>
         </Snackbar>
       </Container>
