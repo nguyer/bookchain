@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd frontend && npm install",
-    "deploy": "node ./devops/deployKaleido && sls deploy --stage dev && node ./devops/addBooks.js && node ./devops/buildFrontend.js && node ./devops/deployFrontend.js"
+    "deploy": "node ./devops/deployKaleido && sls deploy --stage dev && node ./devops/CreateKaleidoEvents.js && node ./devops/addBooks.js && node ./devops/buildFrontend.js && node ./devops/deployFrontend.js"
   },
   "engines": {
     "node": ">=14.15.0"

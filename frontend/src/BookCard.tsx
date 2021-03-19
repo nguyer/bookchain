@@ -5,6 +5,7 @@ import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
+import Chip from "@material-ui/core/Chip";
 
 import Button from "@material-ui/core/Button";
 
@@ -80,6 +81,9 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1),
     minWidth: 120,
   },
+  cardStatus: {
+    marginTop: theme.spacing(2),
+  },
 }));
 
 interface BookCardProps {
@@ -104,68 +108,16 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
             {book.title}
           </Typography>
           <Typography>{book.author}</Typography>
+          <Box className={classes.cardStatus}>
+            {book.borrower && book.borrower !== myAddress ? (
+              <Chip label="Unavailable" disabled variant="outlined" />
+            ) : undefined}
+            {book.borrower && book.borrower == myAddress ? (
+              <Chip label="Borrowed" color="primary" variant="outlined" />
+            ) : undefined}
+          </Box>
         </CardContent>
-        {myAddress !== "" ? (
-          <CardActions>
-            {book.borrower == "" ? (
-              <Button
-                size="small"
-                color="primary"
-                // onClick={handleBorrowDialogClickOpen}
-              >
-                Borrow
-              </Button>
-            ) : book.borrower == myAddress ? (
-              <Button
-                size="small"
-                variant="contained"
-                color="secondary"
-                // onClick={handleReturnDialogClickOpen}
-              >
-                Return
-              </Button>
-            ) : (
-              <Button size="small" variant="contained" disabled>
-                Unavailable
-              </Button>
-            )}
-
-            {/* <Button size="small" color="primary">
-        View
-      </Button>
-      <Button size="small" color="primary">
-        Edit
-      </Button> */}
-          </CardActions>
-        ) : undefined}
       </Card>
-      {/* <Dialog
-        open={returnDialogOpen}
-        onClose={handleReturnDialogClickClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Return {book.title}?</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            This means you actually need to give the book back to its rightful
-            owner. Are you ready to do that?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleReturnDialogClickClose}>Not yet</Button>
-          <Button
-            // TODO: change this to actually return the book
-            onClick={handleReturnDialogClickClose}
-            color="secondary"
-            autoFocus
-          >
-            Return Book
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      */}
     </Box>
   );
 };

@@ -9,6 +9,7 @@ import Button from "@material-ui/core/Button";
 import { UserContext } from "./Books";
 import RecordTable from "./RecordTable";
 import BorrowDialog from "./BorrowDialog";
+import ReturnDialog from "./ReturnDialog";
 import WaitDialog from "./WaitDialog";
 
 import Snackbar from "@material-ui/core/Snackbar";
@@ -32,6 +33,9 @@ const useStyles = makeStyles((theme) => ({
   buttons: {
     marginTop: theme.spacing(2),
   },
+  pleaseLogIn: {
+    marginTop: theme.spacing(1),
+  },
 }));
 
 const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
@@ -43,6 +47,7 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
   const [waitDialogOpen, setWaitDialogOpen] = useState(false);
   const [successSnackbarOpen, setSuccessSnackbarOpen] = useState(false);
   const [records, setRecords] = useState<Record[]>([]);
+  const reloadDelay = 1000; // ms
 
   const sendRecordRequest = (status: string) => {
     return fetch(
@@ -64,18 +69,22 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
     setBorrowDialogOpen(false);
     setWaitDialogOpen(true);
     await sendRecordRequest("borrowed");
-    setWaitDialogOpen(false);
-    setSuccessSnackbarOpen(true);
-    fetchBook();
+    setTimeout(() => {
+      setWaitDialogOpen(false);
+      setSuccessSnackbarOpen(true);
+      fetchBook();
+    }, reloadDelay);
   };
 
   const returnBook = async () => {
     setReturnDialogOpen(false);
     setWaitDialogOpen(true);
     await sendRecordRequest("returned");
-    setWaitDialogOpen(false);
-    setSuccessSnackbarOpen(true);
-    fetchBook();
+    setTimeout(() => {
+      setWaitDialogOpen(false);
+      setSuccessSnackbarOpen(true);
+      fetchBook();
+    }, reloadDelay);
   };
 
   const fetchBook = () => {
@@ -144,6 +153,11 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
                 </Button>
               )}
             </Box>
+            {myAddress ? undefined : (
+              <Typography className={classes.pleaseLogIn}>
+                Please log in to borrow or return books
+              </Typography>
+            )}
           </Box>
         </Box>
         <Box>
@@ -155,6 +169,14 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
           onDialogAccepted={borrowBook}
           onDialogDeclined={() => {
             setBorrowDialogOpen(false);
+          }}
+        />
+        <ReturnDialog
+          book={book}
+          open={returnDialogOpen}
+          onDialogAccepted={returnBook}
+          onDialogDeclined={() => {
+            setReturnDialogOpen(false);
           }}
         />
         <WaitDialog open={waitDialogOpen} />

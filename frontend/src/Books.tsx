@@ -125,23 +125,25 @@ const Books: React.FC = () => {
   const classes = useStyles();
 
   const [books, setBooks] = useState<Book[]>([]);
-  const [myAddress, setMyAddress] = useState("");
-  const [borrowDialogOpen, setBorrowDialogOpen] = React.useState(false);
-  const [returnDialogOpen, setReturnDialogOpen] = React.useState(false);
-  const [loginDialogOpen, setLoginDialogOpen] = React.useState(false);
-  const [sortBy, setSortBy] = React.useState("bookId");
-  const [selectedBook, setSelectedBook] = React.useState<Book | undefined>(
-    undefined
+  const [myAddress, setMyAddress] = useState(
+    localStorage.getItem("myAddress") || ""
   );
-  const [bookDialogOpen, setBookDialogOpen] = React.useState(false);
+  const [loginDialogOpen, setLoginDialogOpen] = React.useState(false);
+  const [myAddressText, setMyAddressText] = React.useState("");
 
-  const handleLoginDialogClickOpen = () => {
-    setLoginDialogOpen(true);
+  const handleLoginButtonClick = () => {
+    setMyAddress(myAddressText);
+    setLoginDialogOpen(false);
   };
 
   const handleLoginDialogClickClose = () => {
     setLoginDialogOpen(false);
+    setMyAddressText(myAddress);
   };
+
+  useEffect(() => {
+    localStorage.setItem("myAddress", myAddress);
+  }, [myAddress]);
 
   useEffect(() => {
     fetch(`${process.env.REACT_APP_BACKEND_URL}/books`).then(async (res) => {
@@ -154,12 +156,6 @@ const Books: React.FC = () => {
       setBooks(booksResponse);
     });
   }, []);
-
-  useEffect(() => {
-    if (selectedBook) {
-      setBookDialogOpen(true);
-    }
-  }, [selectedBook]);
 
   return (
     <Router>
@@ -181,7 +177,9 @@ const Books: React.FC = () => {
                   </Link>
                 </Typography>
                 <IconButton
-                  onClick={handleLoginDialogClickOpen}
+                  onClick={() => {
+                    setLoginDialogOpen(true);
+                  }}
                   aria-label="login"
                   className={classes.loginIcon}
                 >
@@ -204,17 +202,14 @@ const Books: React.FC = () => {
                       id="myAddress"
                       label="Wallet address"
                       fullWidth
-                      value={myAddress}
+                      value={myAddressText}
                       onChange={(event) => {
-                        setMyAddress(event.target.value);
+                        setMyAddressText(event.target.value.toLowerCase());
                       }}
                     />
                   </DialogContent>
                   <DialogActions>
-                    <Button
-                      onClick={handleLoginDialogClickClose}
-                      color="primary"
-                    >
+                    <Button onClick={handleLoginButtonClick} color="primary">
                       Login
                     </Button>
                   </DialogActions>

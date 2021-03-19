@@ -4,7 +4,7 @@ const kaleidoOutputs = require("./outputs/kaleidoOutputs.json");
 const serverlessOutputs = require("./outputs/serverlessOutputs.json");
 const kaleidoConfig = require("../kaleidoConfig.json");
 
-const createEventStream = async () => {
+const init = async () => {
   const borrowedWebhookEndpoint = new URL(
     "webhook/borrowed",
     serverlessOutputs.HttpApiUrl
@@ -13,52 +13,26 @@ const createEventStream = async () => {
     "webhook/returned",
     serverlessOutputs.HttpApiUrl
   ).href;
-  const eventStreamsEndpoint = `${
-    new URL(kaleidoOutputs.generatedApiUrl).origin
-  }/eventstreams`;
-  const borrowedEventStreamResponse = await axios.post(
-    eventStreamsEndpoint,
-    {
-      type: "webhook",
-      batchSize: 1,
-      batchTimeoutMS: 5000,
-      retryTimeoutSec: 0,
-      errorHandling: "block",
-      blockedReryDelaySec: 30,
-      webhook: {
-        url: borrowedWebhookEndpoint,
-      },
-    },
-    {
-      auth: {
-        username: kaleidoConfig.userId,
-        password: kaleidoConfig.password,
-      },
-    }
+  const borrowedEventStreamResponse = await createEventStream(
+    borrowedWebhookEndpoint
   );
-  const returnedEventStreamResponse = await axios.post(
-    eventStreamsEndpoint,
-    {
-      type: "webhook",
-      batchSize: 1,
-      batchTimeoutMS: 5000,
-      retryTimeoutSec: 0,
-      errorHandling: "block",
-      blockedReryDelaySec: 30,
-      webhook: {
-        url: returnedWebhookEndpoint,
-      },
-    },
-    {
-      auth: {
-        username: kaleidoConfig.userId,
-        password: kaleidoConfig.password,
-      },
-    }
+  const returnedEventStreamResponse = await createEventStream(
+    returnedWebhookEndpoint
   );
 
+  console.log("Set up event streams");
   const borrowedEventStreamId = borrowedEventStreamResponse.data.id;
   const returnedEventStreamId = returnedEventStreamResponse.data.id;
+
+  await subscribe(
+    `${kaleidoOutputs.generatedApiUrl}/Borrowed/subscribe`,
+    borrowedEventStreamId
+  );
+  await subscribe(
+    `${kaleidoOutputs.generatedApiUrl}/Returned/subscribe`,
+    returnedEventStreamId
+  );
+
   kaleidoOutputs.borrowedEventStreamId = borrowedEventStreamId;
   kaleidoOutputs.returnedEventStreamId = returnedEventStreamId;
 
@@ -68,14 +42,22 @@ const createEventStream = async () => {
   );
 };
 
-const subscribeToEvents = async () => {
-  const borrowedEndpoint = `${kaleidoOutputs.generatedApiUrl}/Borrowed/subscribe`;
-  const returnedEndpoint = `${kaleidoOutputs.generatedApiUrl}/Returned/subscribe`;
-
-  let res = await axios.post(
-    borrowedEndpoint,
+const createEventStream = (webhookUrl) => {
+  const eventStreamsEndpoint = `${
+    new URL(kaleidoOutputs.generatedApiUrl).origin
+  }/eventstreams`;
+  return axios.post(
+    eventStreamsEndpoint,
     {
-      stream: kaleidoOutputs.borrowedEventStreamId,
+      type: "webhook",
+      batchSize: 1,
+      batchTimeoutMS: 5000,
+      retryTimeoutSec: 0,
+      errorHandling: "block",
+      blockedReryDelaySec: 30,
+      webhook: {
+        url: webhookUrl,
+      },
     },
     {
       auth: {
@@ -84,25 +66,24 @@ const subscribeToEvents = async () => {
       },
     }
   );
-  console.log(res.data);
-
-  res = await axios.post(
-    returnedEndpoint,
-    {
-      stream: kaleidoOutputs.returnedEventStreamId,
-    },
-    {
-      auth: {
-        username: kaleidoConfig.userId,
-        password: kaleidoConfig.password,
-      },
-    }
-  );
-  console.log(res.data);
 };
 
-createEventStream().then(async () => {
-  console.log("Set up event stream");
-  await subscribeToEvents();
+const subscribe = async (eventEndpoint, streamId) => {
+  const res = axios.post(
+    eventEndpoint,
+    {
+      stream: streamId,
+    },
+    {
+      auth: {
+        username: kaleidoConfig.userId,
+        password: kaleidoConfig.password,
+      },
+    }
+  );
+  return res.data;
+};
+
+init().then(async () => {
   console.log("Subscribed to event streams");
 });

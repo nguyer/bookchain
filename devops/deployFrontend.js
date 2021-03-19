@@ -13,9 +13,9 @@ exec(
       return;
     }
     console.log(stdout);
-  }
-);
 
-console.log(
-  `Frontend deployed and available at:\n\nhttps://${serverlessOutputs.Domain}\n`
+    console.log(
+      `\nFrontend deployed and available at:\n\nhttps://${serverlessOutputs.Domain}\n`
+    );
+  }
 );
