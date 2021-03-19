@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useContext } from "react";
-import { RouteComponentProps, Redirect } from "react-router-dom";
+import React, { useEffect, useState, useContext, useCallback } from "react";
+import { RouteComponentProps } from "react-router-dom";
 import { Book, Record } from "./types";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import { UserContext } from "./Books";
+import { UserContext } from "./App";
 import RecordTable from "./RecordTable";
 import BorrowDialog from "./BorrowDialog";
 import ReturnDialog from "./ReturnDialog";
@@ -41,6 +41,7 @@ const useStyles = makeStyles((theme) => ({
 const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
   const classes = useStyles();
   const myAddress = useContext(UserContext);
+  const bookId = props.match.params.bookId;
   const [book, setBook] = useState<Book | undefined>();
   const [borrowDialogOpen, setBorrowDialogOpen] = useState(false);
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
@@ -87,7 +88,7 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
     }, reloadDelay);
   };
 
-  const fetchBook = () => {
+  const fetchBook = useCallback(() => {
     fetch(`${process.env.REACT_APP_BACKEND_URL}/books/${bookId}`).then(
       async (res) => {
         const bookResponse = await res.json();
@@ -105,19 +106,18 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
         setRecords(recordsResponse);
       }
     );
-  };
+  }, [bookId]);
 
   useEffect(() => {
     fetchBook();
-  }, []);
+  }, [fetchBook]);
 
-  const bookId = props.match.params.bookId;
   if (book) {
     return (
       <Container maxWidth="lg" className={classes.container}>
         <Box display="flex" flexDirection="row">
           <Box className={classes.spacing}>
-            <img src={book.coverUrl} />
+            <img alt="Book cover art" src={book.coverUrl} />
           </Box>
           <Box className={classes.spacing}>
             <Typography variant="h3">{book.title}</Typography>
@@ -125,18 +125,19 @@ const BookPage: React.FC<RouteComponentProps<BookPageProps>> = (props) => {
             <Typography>{book.year}</Typography>
             <Typography>ISBN {book.isbn}</Typography>
             <Box className={classes.buttons}>
-              {book.borrower == "" ? (
+              {book.borrower === "" ? (
                 <Button
                   size="small"
                   color="primary"
                   variant="contained"
+                  disabled={myAddress === ""}
                   onClick={() => {
                     setBorrowDialogOpen(true);
                   }}
                 >
                   Borrow
                 </Button>
-              ) : book.borrower == myAddress ? (
+              ) : book.borrower === myAddress ? (
                 <Button
                   size="small"
                   variant="contained"

@@ -1,49 +1,15 @@
-import React, { ReactFragment, useContext } from "react";
+import React, { useContext } from "react";
 import Box from "@material-ui/core/Box";
 import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from "@material-ui/core/CardMedia";
 import Typography from "@material-ui/core/Typography";
 import Chip from "@material-ui/core/Chip";
-
-import Button from "@material-ui/core/Button";
-
-import Grid from "@material-ui/core/Grid";
-import Toolbar from "@material-ui/core/Toolbar";
-import Container from "@material-ui/core/Container";
-import Link from "@material-ui/core/Link";
-
-import TextField from "@material-ui/core/TextField";
-import Select from "@material-ui/core/Select";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControl from "@material-ui/core/FormControl";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import FormLabel from "@material-ui/core/FormLabel";
-import InputLabel from "@material-ui/core/InputLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-
+import { makeStyles } from "@material-ui/core/styles";
+import { UserContext } from "./App";
 import { Book } from "./types";
 
-import { makeStyles } from "@material-ui/core/styles";
-
-import { UserContext } from "./Books";
-import { ProgressPlugin } from "webpack";
-
 const useStyles = makeStyles((theme) => ({
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  loginIcon: {
-    color: "#fff",
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
-  },
   card: {
     height: "100%",
     display: "flex",
@@ -54,32 +20,6 @@ const useStyles = makeStyles((theme) => ({
   },
   cardContent: {
     flexGrow: 1,
-  },
-  footer: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(6),
-  },
-  title: {
-    fontFamily: "Lato",
-    flexGrow: 1,
-  },
-  margin: {
-    margin: theme.spacing(1),
-  },
-  extendedIcon: {
-    marginRight: theme.spacing(1),
-  },
-  libraryTitle: {
-    flexGrow: 1,
-  },
-  libraryHeader: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    alignItems: "center",
-  },
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 120,
   },
   cardStatus: {
     marginTop: theme.spacing(2),
@@ -112,7 +52,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, onClick }) => {
             {book.borrower && book.borrower !== myAddress ? (
               <Chip label="Unavailable" disabled variant="outlined" />
             ) : undefined}
-            {book.borrower && book.borrower == myAddress ? (
+            {book.borrower && book.borrower === myAddress ? (
               <Chip label="Borrowed" color="primary" variant="outlined" />
             ) : undefined}
           </Box>
